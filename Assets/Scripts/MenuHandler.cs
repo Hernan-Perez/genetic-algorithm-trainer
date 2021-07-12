@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,9 +8,11 @@ public class MenuHandler : MonoBehaviour
 {
 
     private GUIStyle buttons, textbox, label, labelError;
-    private string pool_size, mutation;
+    private string pool_size, mutation, elitismSize;
+    private BrainAI.CrossoverMethod cm;
 
     private bool display_error = false;
+    private string error_msg = "";
 
     // Start is called before the first frame update
     void Start()
@@ -27,9 +30,12 @@ public class MenuHandler : MonoBehaviour
         labelError.fontSize = 32;
         labelError.normal.textColor = Color.red;
 
-
+        //load default values to parameters
         pool_size = Parameters.genePool.ToString();
         mutation = (Parameters.mutationProbability * 100).ToString();
+        elitismSize = Parameters.elitismQuantity.ToString();
+        cm = Parameters.crossoverMethod;
+
     }
 
     // Update is called once per frame
@@ -41,15 +47,31 @@ public class MenuHandler : MonoBehaviour
     private void OnGUI()
     {
 
+        /**
+         * AGREGAR PARAMETRO DE ELITISMO SELECTION SIZE Y PONER PARAMETROS (2, MAX)
+         * 
+         * */
+
         GUI.Label(new Rect(100, 100, 200, 50), "Pool size:", label);
         pool_size = GUI.TextField(new Rect(100, 150, 200, 50), pool_size, textbox);
 
-        GUI.Label(new Rect(400, 100, 400, 50), "Mutation probability (%):", label);
-        mutation = GUI.TextField(new Rect(400, 150, 200, 50), mutation, textbox);
+        GUI.Label(new Rect(600, 100, 400, 50), "Mutation probability (%):", label);
+        mutation = GUI.TextField(new Rect(600, 150, 200, 50), mutation, textbox);
+
+        GUI.Label(new Rect(100, 250, 400, 50), "Elitism selection size:", label);
+        elitismSize = GUI.TextField(new Rect(100, 300, 200, 50), elitismSize, textbox);
+
+        GUI.Label(new Rect(600, 250, 400, 50), "Crossover method:", label);
+        if (GUI.Button(new Rect(600, 300, 200, 50), cm.ToString()))
+        {
+            cm++;
+            if ((int)cm == Enum.GetValues(typeof(BrainAI.CrossoverMethod)).Length)
+                cm = 0;
+        }
 
         if (display_error)
         {
-            GUI.Label(new Rect(10, 10, 500, 50), "ERROR: INVALID PARAMETERS", labelError);
+            GUI.Label(new Rect(10, 10, 500, 50), error_msg, labelError);
         }
 
         if (GUI.Button(new Rect(Screen.width * 0.20f, Screen.height * 0.80f, Screen.width * 0.20f, Screen.height * 0.07f), "Start", buttons))
@@ -68,35 +90,42 @@ public class MenuHandler : MonoBehaviour
 
     private bool ValidateParams()
     {
+        int pool, elit;
+        float mut;
+
         try
         {
-            Parameters.genePool = int.Parse(pool_size);
-            Parameters.mutationProbability = float.Parse(mutation)/100f;
+            pool = int.Parse(pool_size);
+            mut = float.Parse(mutation)/100f;
+            elit = int.Parse(elitismSize);
         }
         catch
         {
+            error_msg = "Error: One or more parameters contain an invalid number";
             return false;
         }
 
-        return true;
+        if (pool < 2)
+            pool = 2;
 
-        /*PONER ESTA VALIDACION
-         if (genePool < 2)
-            genePool = 2;   //por el algoritmo de seleccion necesito por lo menos 2
-        if (mutationProbability < 0)
-            mutationProbability = 0;
-        if (mutationProbability > 1)
-            mutationProbability = 1;
-        if (elitismQuantity < 0)
-            elitismQuantity = 0;
-        if (elitismQuantity > genePool)
-            elitismQuantity = genePool;
-        if (tournamentSize < 0)
-            tournamentSize = 0;
-        if (tournamentSize > genePool)
-            tournamentSize = genePool;
-         
-         
-         */
+        if (mut < 0)
+            mut = 0;
+
+        if (mut > 1)
+            mut = 1;
+
+        if (elit < 0)
+            elit = 0;
+
+        if (elit > pool)
+            elit = pool;
+
+
+        Parameters.genePool = pool;
+        Parameters.mutationProbability = mut;
+        Parameters.elitismQuantity = elit;
+        Parameters.crossoverMethod = cm;
+
+        return true;
     }
 }

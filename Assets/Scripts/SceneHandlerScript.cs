@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class SceneHandlerScript : MonoBehaviour {
 
-    public static bool PAUSE = false, PAUSE_FORCED = false;
-
     private GameObject prefabCar;
     private List<CarHandler> carList, orderedCarList;
     private List<Color> colorGradients;
@@ -84,7 +82,6 @@ public class SceneHandlerScript : MonoBehaviour {
             if (Parameters.genePool == deadCount())
             {
                 allDead = true;
-                PAUSE_FORCED = true;
             }
             else
             {
@@ -113,22 +110,16 @@ public class SceneHandlerScript : MonoBehaviour {
 
         CarHandler cAux;
 
-        //Hace la seleccion en forma directa o por torneo
-        if (!Parameters.enableTournament)
+        //selection
+        for (int i = nl.Count; i < Parameters.genePool; i++)
         {
-            for (int i = nl.Count; i < Parameters.genePool; i++)
-            {
                 
-                cAux = Instantiate(prefabCar).GetComponent<CarHandler>();
-                cAux.Crossover(orderedCarList[0], orderedCarList[1]);
-                cAux.Mutate(Parameters.mutationProbability, Parameters.MetodoCrossover);
-                nl.Add(cAux);
-            }
+            cAux = Instantiate(prefabCar).GetComponent<CarHandler>();
+            cAux.Crossover(orderedCarList.GetRange(0, Parameters.elitismQuantity));
+            cAux.Mutate(Parameters.mutationProbability, Parameters.crossoverMethod);
+            nl.Add(cAux);
         }
-        else
-        {
-            //FALTA CODEAR
-        }
+
 
         for (int i = 0; i < carList.Count; i++)
         {
@@ -145,7 +136,6 @@ public class SceneHandlerScript : MonoBehaviour {
         lastBestScore = mejorFitnessActual;
         deltaScore = lastBestScore - beforeLastScore;
         generation++;
-        PAUSE_FORCED = false;
     }
 
     private int deadCount()
@@ -170,7 +160,7 @@ public class SceneHandlerScript : MonoBehaviour {
         GUI.Label(new Rect(Screen.width * 0.65f, Screen.height * 0.50f, 500, 50), "Best of last generation: " + lastBestScore.ToString("0.00") + " (" + ((deltaScore<0)?(""):("+")) + deltaScore.ToString("0.00") + ")", label1);
         GUI.Label(new Rect(Screen.width * 0.65f, Screen.height * 0.55f, 500, 50), "Alive: " + (Parameters.genePool - deadCount()) + "/" + Parameters.genePool, label1);
 
-        GUI.Label(new Rect(0, 0, Screen.width, 50), "Pool: " + Parameters.genePool + "\tMutation prob.: " + (Parameters.mutationProbability *100f).ToString("0.00") + "%\t Elitism: " + Parameters.elitismQuantity + "\t Crossover: " + ((Parameters.MetodoCrossover ==BrainAI.CrossoverMethod.Uniform)?("Uniforme"):("Single point")), label1);
+        GUI.Label(new Rect(0, 0, Screen.width, 50), "Pool: " + Parameters.genePool + "\tMutation prob.: " + (Parameters.mutationProbability *100f).ToString("0.00") + "%\t Elitism: " + Parameters.elitismQuantity + "\t Crossover: " + Parameters.crossoverMethod.ToString(), label1);
 
         GUI.Label(new Rect(10 + Screen.width * 0f, Screen.height * 0.25f, 500, 50), "TOP 10: ", label1);
 

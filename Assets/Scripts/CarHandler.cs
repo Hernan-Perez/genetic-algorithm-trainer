@@ -74,8 +74,6 @@ public class CarHandler : MonoBehaviour {
     // Update is called once per frame
     private void FixedUpdate ()
     {
-        if (SceneHandlerScript.PAUSE || SceneHandlerScript.PAUSE_FORCED)
-            return;
         if (!muerto)
         {
             ProcesarBrain(getInputs());
@@ -187,8 +185,20 @@ public class CarHandler : MonoBehaviour {
         return brain;
     }
 
-    public void Crossover(CarHandler s1, CarHandler s2)
+    public void Crossover(List<CarHandler> l)
     {
+        CarHandler s1, s2;
+
+        //gets random parent for crossover
+        s1 = l[Random.Range(0, l.Count)];
+
+        //get random parent for the 2° one, but check that its a different one than s1
+        do
+        {
+            s2 = l[Random.Range(0, l.Count)];
+        } while (s2 == s1);
+
+
         brain = new BrainAI();
         brain = BrainAI.Crossover(s1.getBrain(), s2.getBrain());
     }

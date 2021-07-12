@@ -218,7 +218,7 @@ public class BrainAI
         {
             case CrossoverMethod.SinglePoint:
                 //METODO CROSSOVER SINGLE POINT
-                int r = Random.Range(0, f1.Length);
+                int r = Random.Range(1, f1.Length);
                 for (int i = 0; i < f1.Length; i++)
                 {
                     if (i < r)

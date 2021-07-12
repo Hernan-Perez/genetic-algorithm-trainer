@@ -1148,13 +1148,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2cd2fbe71709c5844b11969434448680, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  axes: 0
   sensitivityX: 3
   sensitivityY: 2
   minimumX: -360
   maximumX: 360
-  minimumY: -90
-  maximumY: 90
+  minimumY: -80
+  maximumY: 80
   frameCounter: 5
 --- !u!20 &282840813
 Camera:
