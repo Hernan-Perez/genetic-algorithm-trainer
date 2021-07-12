@@ -6468,6 +6468,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CAR
       objectReference: {fileID: 0}
+    - target: {fileID: 1987512612305910, guid: b2083e3079c557849bf5d893e1c88744, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4799302874345052, guid: b2083e3079c557849bf5d893e1c88744, type: 3}
       propertyPath: m_RootOrder
       value: 4
@@ -6499,6 +6503,10 @@ PrefabInstance:
     - target: {fileID: 4799302874345052, guid: b2083e3079c557849bf5d893e1c88744, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114026267573368680, guid: b2083e3079c557849bf5d893e1c88744, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b2083e3079c557849bf5d893e1c88744, type: 3}

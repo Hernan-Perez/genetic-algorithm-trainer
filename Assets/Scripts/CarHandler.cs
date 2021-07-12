@@ -176,6 +176,9 @@ public class CarHandler : MonoBehaviour {
 
     public void CambiarColor(Color col)
     {
+        if (this == null)
+            return;
+
         transform.GetChild(0).GetComponent<Renderer>().material.color = col;
     }
 

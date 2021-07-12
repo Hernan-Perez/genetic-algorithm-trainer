@@ -27,23 +27,21 @@ public class SceneHandlerScript : MonoBehaviour {
         label1.fontSize = 24;
         label1.normal.textColor = Color.black;
 
-        //destruyo el primer auto que esta como "modelo"
-        //GameObject.Destroy(GameObject.Find("Car"));
-        //prefabCar = Resources.Load("CAR") as GameObject;
-        prefabCar = GameObject.Find("CAR");
-
+        prefabCar = Resources.Load("carPrefab") as GameObject;
 
         carList = new List<CarHandler>();
         orderedCarList = new List<CarHandler>();
         colorGradients = new List<Color>();
 
-        Debug.Log("prefab car existe=" + (prefabCar!=null));
-        Debug.Log("parameters.genepool=" + Parameters.genePool);
-
         for (int i = 0; i < Parameters.genePool; i++)
         {
-            carList.Add(Instantiate(prefabCar).GetComponent<CarHandler>());
+            carList.Add( ((GameObject)Instantiate(prefabCar)).GetComponent<CarHandler>() );
             colorGradients.Add(new Color(i / (float)Parameters.genePool, 1f - i/(float)Parameters.genePool, 0f));  //desde verde a rojo
+        }
+
+        for (int i = 0; i < carList.Count; i++)
+        {
+            carList[i].enabled = true;
         }
 	}
 	
@@ -125,14 +123,6 @@ public class SceneHandlerScript : MonoBehaviour {
                 cAux.Crossover(orderedCarList[0], orderedCarList[1]);
                 cAux.Mutate(Parameters.mutationProbability, Parameters.MetodoCrossover);
                 nl.Add(cAux);
-                
-
-                /*//PRUEBA
-                cAux = Instantiate(prefabCar).GetComponent<CarHandler>();
-                cAux.CrossBreed(listaCarOrdenados[0], listaCarOrdenados[0]);
-                cAux.Mutate(mutationProbability, BrainAI.CrossBreedMethod.Uniforme);
-                nl.Add(cAux);
-                cAux.ShowDebugConsoleSerializedBrain();*/
             }
         }
         else
