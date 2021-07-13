@@ -7,7 +7,7 @@ public class CarHandler : MonoBehaviour {
     private static int nextID = 0;
     public static bool displayID = true;
     private int ID;
-    public int getID
+    public int GetID
     {
         get
         {
@@ -15,33 +15,31 @@ public class CarHandler : MonoBehaviour {
         }
     }
 
-    /// <summary>
-    /// Hasta donde "ve" el auto. Sirve para los inputs
-    /// Intentar no cambiar este valor despues de tener un brain entrenado.
-    /// </summary>
-    public float distanciaMaximaVision = 10f;
+    // Change the max distance that the car can 'see'.
+    public float maxVisionDistance = 10f;
 
-    private float speedMultiplier = 10f;
-    private float speedBase = 1f;
-    private float angleMultiplier = 1000f;
+    private const float speedMultiplier = 10f;
+    private const float speedBase = 1f;
+    private const float angleMultiplier = 1000f;
+    private const float maxAngleLoop = 10720f;
 
-    private float currentAngleLoop, maxAngleLoop = 10720f;  //para evitar que se quede girando en circulos
+    private float currentAngleLoop;
 
     private float speed = 0f;
     private float turnAngle = 0f;
-    private float totalRecorrido = 0f;
+    private float totalDistance = 0f;
     private BrainAI brain;
-    private bool muerto = false;
-    private Vector3 posInicial;
-    private Vector3 rotacionInicial;
+    private bool dead = false;
+    private Vector3 initialPos;
+    private Vector3 initialRotation;
 
     private GUIStyle label1;
 
-    public bool isDead
+    public bool IsDead
     {
         get
         {
-            return muerto;
+            return dead;
         }
     }
 
@@ -49,7 +47,7 @@ public class CarHandler : MonoBehaviour {
     {
         get
         {
-            return totalRecorrido;
+            return totalDistance;
         }
     }
 
@@ -57,8 +55,8 @@ public class CarHandler : MonoBehaviour {
 	void Start () {
         ID = nextID;
         nextID++;
-        posInicial = transform.position;
-        rotacionInicial = transform.eulerAngles;
+        initialPos = transform.position;
+        initialRotation = transform.eulerAngles;
         if (brain == null)
             brain = new BrainAI(5, 4, 4, 2);
 
@@ -67,17 +65,17 @@ public class CarHandler : MonoBehaviour {
         label1.fontSize = 24;
         label1.normal.textColor = Color.black;
 
-        if (ID == 0)    //para eliminar el de prueba que esta en escena
+        if (ID == 0)    //this is for deleting the default car that loads with the scene
             GameObject.Destroy(this.gameObject);
     }
 
     // Update is called once per frame
     private void FixedUpdate ()
     {
-        if (!muerto)
+        if (!dead)
         {
-            ProcesarBrain(getInputs());
-            Moverse();
+            ProcessBrain(GetInputs());
+            Move();
         }
         
 	}
@@ -96,46 +94,42 @@ public class CarHandler : MonoBehaviour {
     {
         if (other.tag == "Wall")
         {
-            muerto = true;
+            dead = true;
         }
     }
 
-    private void ProcesarBrain(Matrix inputs)
+    private void ProcessBrain(Matrix inputs)
     {
         
-        Matrix output = brain.Procesar(inputs);
-
-        //Debug.Log("M: " + output.m[0, 0] + " " + output.m[1, 0]);
+        Matrix output = brain.Process(inputs);
 
         speed = output.m[0, 0];
 
-        turnAngle = (output.m[1, 0] * 2f) - 1f; //para que los valores esten entre 1 y -1
-        //Debug.Log(turnAngle);
+        turnAngle = (output.m[1, 0] * 2f) - 1f; //this normalizes the output values from 1 to -1
 
     }
 
-    private Matrix getInputs()
+    private Matrix GetInputs()
     {
         Matrix m = new Matrix(5, 1);
 
-        m.m[0, 0] = getInputDireccion((Quaternion.Euler(0, -45f, 0) * transform.forward).normalized);
-        m.m[1, 0] = getInputDireccion((Quaternion.Euler(0, -22.5f, 0) * transform.forward).normalized);
-        m.m[2, 0] = getInputDireccion(transform.forward.normalized);    //mira adelante
-        m.m[3, 0] = getInputDireccion((Quaternion.Euler(0, +22.5f, 0) * transform.forward).normalized);
-        m.m[4, 0] = getInputDireccion((Quaternion.Euler(0, +45f, 0) * transform.forward).normalized);
-        //Debug.Log("....................");
+        m.m[0, 0] = GetInputDirection((Quaternion.Euler(0, -45f, 0) * transform.forward).normalized);
+        m.m[1, 0] = GetInputDirection((Quaternion.Euler(0, -22.5f, 0) * transform.forward).normalized);
+        m.m[2, 0] = GetInputDirection(transform.forward.normalized);    //mira adelante
+        m.m[3, 0] = GetInputDirection((Quaternion.Euler(0, +22.5f, 0) * transform.forward).normalized);
+        m.m[4, 0] = GetInputDirection((Quaternion.Euler(0, +45f, 0) * transform.forward).normalized);
+
         return m;
     }
 
-    private float getInputDireccion(Vector3 dir)
+    private float GetInputDirection(Vector3 dir)
     {
-        //Debug.Log(dir);
         RaycastHit[] hits;
-        hits = Physics.RaycastAll(transform.position, dir, distanciaMaximaVision);
+        hits = Physics.RaycastAll(transform.position, dir, maxVisionDistance);
         float res = -1f;
         for (int i = 0; i < hits.Length; i++)
         {
-            if (hits[i].collider.tag == "Wall")
+            if (hits[i].collider.CompareTag("Wall"))
             {
                 if (Vector3.Distance(hits[i].point, transform.position) < res || res == -1)
                 {
@@ -146,33 +140,32 @@ public class CarHandler : MonoBehaviour {
 
         if (res < 0.01f)
             res = 0.01f;
-        if (res > distanciaMaximaVision)
-            res = distanciaMaximaVision;
+        if (res > maxVisionDistance)
+            res = maxVisionDistance;
 
         return res;
-        //return 1f - res/distanciaMaximaVision; //si esta a dist = 0 -> ret = 1f // si esta a dist max -> ret = 0f
     }
 
-    private void Moverse()
+    private void Move()
     {
         transform.RotateAround(transform.position, Vector3.up, turnAngle * angleMultiplier * Time.fixedDeltaTime);
         transform.position += transform.forward * (speedBase + speed) * speedMultiplier * Time.fixedDeltaTime;
-        totalRecorrido += (speedBase + speed) * speedMultiplier * Time.fixedDeltaTime;// - Time.fixedDeltaTime;
+        totalDistance += (speedBase + speed) * speedMultiplier * Time.fixedDeltaTime;
         currentAngleLoop += turnAngle * angleMultiplier * Time.fixedDeltaTime;
 
         if (currentAngleLoop > maxAngleLoop || currentAngleLoop < -maxAngleLoop)
-            muerto = true;
+            dead = true;
     }
 
-    public void Resetear()
+    public void Reset()
     {
-        transform.position = posInicial;
-        transform.eulerAngles = rotacionInicial;
-        muerto = false;
-        speed = turnAngle = totalRecorrido = 0f;
+        transform.position = initialPos;
+        transform.eulerAngles = initialRotation;
+        dead = false;
+        speed = turnAngle = totalDistance = 0f;
     }
 
-    public void CambiarColor(Color col)
+    public void ChangeColor(Color col)
     {
         if (this == null)
             return;
@@ -180,7 +173,7 @@ public class CarHandler : MonoBehaviour {
         transform.GetChild(0).GetComponent<Renderer>().material.color = col;
     }
 
-    public BrainAI getBrain()
+    public BrainAI GetBrain()
     {
         return brain;
     }
@@ -200,7 +193,7 @@ public class CarHandler : MonoBehaviour {
 
 
         brain = new BrainAI();
-        brain = BrainAI.Crossover(s1.getBrain(), s2.getBrain());
+        brain = BrainAI.Crossover(s1.GetBrain(), s2.GetBrain());
     }
 
     public void Mutate(float mutProb, BrainAI.CrossoverMethod metodo = BrainAI.CrossoverMethod.Uniform)

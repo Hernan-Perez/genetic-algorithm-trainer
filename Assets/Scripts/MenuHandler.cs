@@ -46,12 +46,6 @@ public class MenuHandler : MonoBehaviour
 
     private void OnGUI()
     {
-
-        /**
-         * AGREGAR PARAMETRO DE ELITISMO SELECTION SIZE Y PONER PARAMETROS (2, MAX)
-         * 
-         * */
-
         GUI.Label(new Rect(100, 100, 200, 50), "Pool size:", label);
         pool_size = GUI.TextField(new Rect(100, 150, 200, 50), pool_size, textbox);
 

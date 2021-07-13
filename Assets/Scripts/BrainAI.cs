@@ -2,11 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Neural Network default composition:
+/// 
+/// Input layer: 5 nodes
+/// Hidden layer 1: 4 nodes
+/// Hidden layer 2: 4 nodes
+/// Output layer: 2 nodes
+/// 
+/// Each node in the hidden layers and output has a bias value associated.
+/// 
+/// </summary>
 public class BrainAI
 {
     public enum CrossoverMethod { SinglePoint, Uniform };
 
-    private Matrix L0, B0, L1, B1, L2, B2;
+    private Matrix L0, B0, L1, B1, L2, B2;// L -> weight matrix,  B -> bias matrix
+    //L0 are weights between input and hidden layer 1
+    //L1 are weights between hidden layer 1 and 2
+    //L2 are weights between hidden layer 2 and outputs
+    //B0 are the bias values of the nodes in hidden layer 1
+    //B1 are the bias values of the nodes in hidden layer 2
+    //B2 are the bias values of the nodes in output layer
+
+    /// <summary>
+    /// Returns the serialized length.
+    /// </summary>
     public int SerialCount
     {
         get
@@ -14,62 +35,62 @@ public class BrainAI
             return L0.getSize() + B0.getSize() + L1.getSize() + B1.getSize() + L2.getSize() + B2.getSize();
         }
     }
-    //L0 pesos entre input y capa 1, L1 pesos entre capa 1 y capa2, L2 pesos entre capa2 y output
-    private int nodosL1 = 4;
-    private int nodosL2 = 4;
+
+    
+
+    private int nodesL1 = 4;
+    private int nodesL2 = 4;
     private int inputs = 5;
     private int outputs = 2;
 
-    //Crear nuevo Brain COMPLETAMENTE aleatorio
-	public BrainAI(int _inputs = 5, int _nodosL1 = 4, int _nodosL2 = 4, int _outputs = 2)
+    /// <summary>
+    /// Create a new Brain with completely random values
+    /// </summary>
+    public BrainAI(int _inputs = 5, int _nodesL1 = 4, int _nodesL2 = 4, int _outputs = 2)
     {
 
         inputs = _inputs;
-        nodosL1 = _nodosL1;
-        nodosL2 = _nodosL2;
+        nodesL1 = _nodesL1;
+        nodesL2 = _nodesL2;
         outputs = _outputs;
 
-        L0 = new Matrix(nodosL1, inputs);
-        L0.Randomizar();
+        L0 = new Matrix(nodesL1, inputs);
+        L0.Randomize();
 
-        B0 = new Matrix(nodosL1, 1);
-        B0.Randomizar();
+        B0 = new Matrix(nodesL1, 1);
+        B0.Randomize();
 
-        L1 = new Matrix(nodosL2, nodosL1);
-        L1.Randomizar();
+        L1 = new Matrix(nodesL2, nodesL1);
+        L1.Randomize();
 
-        B1 = new Matrix(nodosL2, 1);
-        B1.Randomizar();
+        B1 = new Matrix(nodesL2, 1);
+        B1.Randomize();
 
-        L2 = new Matrix(outputs, nodosL2);
-        L2.Randomizar();
+        L2 = new Matrix(outputs, nodesL2);
+        L2.Randomize();
 
         B2 = new Matrix(outputs, 1);
-        B2.Randomizar();
+        B2.Randomize();
 
     }
 
-	public Matrix Procesar (Matrix input)
+    /// <summary>
+    /// Process an input through the neural network.
+    /// Activation function: Sigmoid function
+    /// </summary>
+    /// <param name="input"></param>
+    /// <returns></returns>
+	public Matrix Process (Matrix input)
     {
-        //Debug.Log("Input: " + input.filas + " " + input.columnas);
-        Matrix aux = Matrix.SigmoidMatrix(Matrix.Suma(Matrix.Cross(L0, input), B0));
-        //Debug.Log("aux(0): " + aux.filas + " " + aux.columnas);
-        aux = Matrix.SigmoidMatrix(Matrix.Suma(Matrix.Cross(L1, aux), B1));
-        //Debug.Log("aux(1): " + aux.filas + " " + aux.columnas);
-        aux = Matrix.SigmoidMatrix(Matrix.Suma(Matrix.Cross(L2, aux), B2));
-        //Debug.Log("aux(2): " + aux.filas + " " + aux.columnas);
+        Matrix aux = Matrix.SigmoidMatrix(Matrix.Sum(Matrix.Cross(L0, input), B0));
+
+        aux = Matrix.SigmoidMatrix(Matrix.Sum(Matrix.Cross(L1, aux), B1));
+        aux = Matrix.SigmoidMatrix(Matrix.Sum(Matrix.Cross(L2, aux), B2));
         return aux;
 	}
 
-    /// <summary>
-    /// En realidad NO DEVUELVE hidden layer. Devuelve los pesos entre capa y capa
-    /// 0 -> entre input y capa 1
-    /// 1 -> entre capa 1 y capa 2
-    /// 2 -> entre capa 2 y output
-    /// </summary>
-    /// <param name="i"></param>
-    /// <returns></returns>
-    public Matrix getHiddenLayer(int i)
+
+    public Matrix GetWeightLayer(int i)
     {
         switch (i)
         {
@@ -84,7 +105,7 @@ public class BrainAI
         }
     }
 
-    public Matrix getBiasLayer(int i)
+    public Matrix GetBiasLayer(int i)
     {
         switch (i)
         {
@@ -99,7 +120,7 @@ public class BrainAI
         }
     }
 
-    public void setHiddenLayer(int i, Matrix m)
+    public void SetWeightLayer(int i, Matrix m)
     {
         switch (i)
         {
@@ -115,7 +136,7 @@ public class BrainAI
         }
     }
 
-    public void setBiasLayer(int i, Matrix m)
+    public void SetBiasLayer(int i, Matrix m)
     {
         switch (i)
         {
@@ -132,7 +153,8 @@ public class BrainAI
     }
 
     /// <summary>
-    /// Matrix (L0 B0 L1 B1 L2 B2) -> float[] (L0 B0 L1 B1 L2 B2)
+    /// Transform all the matrix to a unique float array.
+    /// Order: l0 b0 l1 b1 l2 b2
     /// </summary>
     /// <param name="b"></param>
     /// <returns></returns>
@@ -140,29 +162,26 @@ public class BrainAI
     {
         float[] serial = new float[b.SerialCount];
 
-        //orden: l0 b0 l1 b1 l2 b2
-
         int c = 0;
         int i, j;
         Matrix m;
         for (int z = 0; z < 3; z++)
         {
-            m = b.getHiddenLayer(z);
-            for (i = 0; i < m.filas; i++)
-                for (j = 0; j < m.columnas; j++)
+            m = b.GetWeightLayer(z);
+            for (i = 0; i < m.rows; i++)
+                for (j = 0; j < m.columns; j++)
                 {
                     serial[c] = m.m[i, j];
                     c++;
                 }
-            //b.setHiddenLayer(z, m);
-            m = b.getBiasLayer(z);
-            for (i = 0; i < m.filas; i++)
-                for (j = 0; j < m.columnas; j++)
+
+            m = b.GetBiasLayer(z);
+            for (i = 0; i < m.rows; i++)
+                for (j = 0; j < m.columns; j++)
                 {
                     serial[c] = m.m[i, j];
                     c++;
                 }
-            //b.setBiasLayer(z, m);
         }
         
 
@@ -171,29 +190,29 @@ public class BrainAI
     }
 
     /// <summary>
-    /// Matrix (L0 B0 L1 B1 L2 B2) -> float[] (L0 B0 L1 B1 L2 B2)
+    /// Transform a float array to matrix
+    /// Order: l0 b0 l1 b1 l2 b2
     /// </summary>
     /// <param name="b"></param>
     /// <returns></returns>
     public static BrainAI Deserialize(float[] serial)
     {
-        //orden: l0 b0 l1 b1 l2 b2
         BrainAI b = new BrainAI();
         int c = 0;
         int i, j;
         Matrix m;
         for (int z = 0; z < 3; z++)
         {
-            m = b.getHiddenLayer(z);
-            for (i = 0; i < m.filas; i++)
-                for (j = 0; j < m.columnas; j++)
+            m = b.GetWeightLayer(z);
+            for (i = 0; i < m.rows; i++)
+                for (j = 0; j < m.columns; j++)
                 {
                     m.m[i, j] = serial[c];
                     c++;
                 }
-            m = b.getBiasLayer(z);
-            for (i = 0; i < m.filas; i++)
-                for (j = 0; j < m.columnas; j++)
+            m = b.GetBiasLayer(z);
+            for (i = 0; i < m.rows; i++)
+                for (j = 0; j < m.columns; j++)
                 {
                     m.m[i, j] = serial[c];
                     c++;
@@ -205,6 +224,13 @@ public class BrainAI
         return b;
     }
 
+    /// <summary>
+    /// Crossover of 2 parents to produce a unique child using the chosen method.
+    /// </summary>
+    /// <param name="b1"></param>
+    /// <param name="b2"></param>
+    /// <param name="cbm"></param>
+    /// <returns></returns>
     public static BrainAI Crossover(BrainAI b1, BrainAI b2, CrossoverMethod cbm = CrossoverMethod.Uniform)
     {
         float[] f1, f2, ff;
@@ -217,7 +243,6 @@ public class BrainAI
         switch (cbm)
         {
             case CrossoverMethod.SinglePoint:
-                //METODO CROSSOVER SINGLE POINT
                 int r = Random.Range(1, f1.Length);
                 for (int i = 0; i < f1.Length; i++)
                 {
@@ -233,7 +258,6 @@ public class BrainAI
                 break;
 
             case CrossoverMethod.Uniform:
-                // METODO CROSSOVER UNIFORME
                 for (int i = 0; i < f1.Length; i++)
                 {
                     if (Random.Range(0f, 1f) < 0.5f)
@@ -254,21 +278,23 @@ public class BrainAI
         return aux;
     }
 
+    /// <summary>
+    /// Applies to each value in each weight and bias matrix a probability of mutation.
+    /// If a value get mutated it will get a new random value.
+    /// </summary>
+    /// <param name="b"></param>
+    /// <param name="mutProb"></param>
+    /// <returns></returns>
     public static BrainAI Mutate(BrainAI b, float mutProb)
     {
         float[] f = BrainAI.Serialize(b);
 
         for (int i = 0; i < f.Length; i++)
         {
-            //muta si el random es menor a mutProb
-            //EJ: si la prob es de 1.5% / 0.015, el random da un nro entre 0 y 1
-            // necesito que sea menor a 0.015 para que entre en la probabilidad
-            if (Random.Range(0f, 1f) < mutProb)
+            //the value mutates if the random number generated is less or equal to the mutation probability
+            if (Random.Range(0f, 1f) <= mutProb)
             {
-                //float aux = f[i];
-                //f[i] += Random.Range(-1f, 1f)/5f;///5f;
-                f[i] = Random.Range(-2f, 2f);
-                //Debug.Log("Mutacion: " + aux + " -> " + f[i]);
+                f[i] = Random.Range(-100f, 100f); //these are arbitrary number. Changing these may produce better or worst results.
             }
         }
         b = BrainAI.Deserialize(f);
