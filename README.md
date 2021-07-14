@@ -1,4 +1,4 @@
-# AI.GeneticAlgorithm.SimpleTest
+# AI.GeneticAlgorithm.Test
 I have made this project to experiment with the Genetic Algorithm which I find fascinating.
 
 ## Description
@@ -37,4 +37,4 @@ Both parents and childs are carried over to the next generation. <br />
 
 ## Future of the project
 There are some hardcoded elements that could be parameterized in a future to test the different results when changing their values. For example: the amount of hidden layers and the amount of nodes inside them, or adding different selection methods. <br/>
-Also at some point I should add different tracks to test the behaviour of a trained NN on a new track.
+Also at some point I should add different tracks to test the behaviour of a trained NN on a new track and add a functionality allowing to save and load a trained NN.
