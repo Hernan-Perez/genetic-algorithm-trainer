@@ -5,6 +5,9 @@ I have made this project to experiment with the Genetic Algorithm which I find f
 This is made to experiment and learn the effectiveness of the Genetic Algorithm while using different parameters.<br />
 The test contains a car and a track with solid walls acting as borders, the objective is to train a neural network that tells the car when to turn and the magnitude of the angle, so that the car can reach the end of the track without colliding with the walls.
 
+![screenshotAICAR](https://user-images.githubusercontent.com/85197456/125550518-fb60c95e-5de3-4706-ab8a-74960a392191.png)
+
+
 ## Genetic Algorithm implementation
 The current neural network model consists of:
 * Input layer: contains 5 nodes that represent the distance between the car and an obstacle when looking to a particular direction (Angles of direction: -45°, -22.5°, 0° (forward), 22.5°, 45°)
