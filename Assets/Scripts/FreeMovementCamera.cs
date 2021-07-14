@@ -58,6 +58,11 @@ public class FreeMovementCamera : MonoBehaviour {
         {
             transform.position -= Vector3.Cross(transform.forward, Vector3.up).normalized * 30f * Time.deltaTime;
         }
+
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            Application.Quit();
+        }
     }
 
     private void UpdateRotation()

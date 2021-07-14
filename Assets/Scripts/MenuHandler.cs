@@ -17,11 +17,11 @@ public class MenuHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        buttons = new GUIStyle("button");
+        /*buttons = new GUIStyle("button");
         buttons.fontSize = 32;
-
+        
         textbox = new GUIStyle("textfield");
-        textbox.fontSize = 32;
+        textbox.fontSize = 32;*/
 
         label = new GUIStyle("label");
         label.fontSize = 32;
@@ -47,13 +47,13 @@ public class MenuHandler : MonoBehaviour
     private void OnGUI()
     {
         GUI.Label(new Rect(100, 100, 200, 50), "Pool size:", label);
-        pool_size = GUI.TextField(new Rect(100, 150, 200, 50), pool_size, textbox);
+        pool_size = GUI.TextField(new Rect(100, 150, 200, 50), pool_size/*, textbox*/);
 
         GUI.Label(new Rect(600, 100, 400, 50), "Mutation probability (%):", label);
-        mutation = GUI.TextField(new Rect(600, 150, 200, 50), mutation, textbox);
+        mutation = GUI.TextField(new Rect(600, 150, 200, 50), mutation/*, textbox*/);
 
         GUI.Label(new Rect(100, 250, 400, 50), "Elitism selection size:", label);
-        elitismSize = GUI.TextField(new Rect(100, 300, 200, 50), elitismSize, textbox);
+        elitismSize = GUI.TextField(new Rect(100, 300, 200, 50), elitismSize/*, textbox*/);
 
         GUI.Label(new Rect(600, 250, 400, 50), "Crossover method:", label);
         if (GUI.Button(new Rect(600, 300, 200, 50), cm.ToString()))
@@ -68,7 +68,7 @@ public class MenuHandler : MonoBehaviour
             GUI.Label(new Rect(10, 10, 500, 50), error_msg, labelError);
         }
 
-        if (GUI.Button(new Rect(Screen.width * 0.20f, Screen.height * 0.80f, Screen.width * 0.20f, Screen.height * 0.07f), "Start", buttons))
+        if (GUI.Button(new Rect(Screen.width * 0.20f, Screen.height * 0.80f, Screen.width * 0.20f, Screen.height * 0.07f), "Start"/*, buttons*/))
         {
             if (ValidateParams())
                 SceneManager.LoadScene(1);
@@ -76,7 +76,7 @@ public class MenuHandler : MonoBehaviour
                 display_error = true;
         }
 
-        if (GUI.Button(new Rect(Screen.width * 0.60f, Screen.height * 0.80f, Screen.width * 0.20f, Screen.height * 0.07f), "Exit", buttons))
+        if (GUI.Button(new Rect(Screen.width * 0.60f, Screen.height * 0.80f, Screen.width * 0.20f, Screen.height * 0.07f), "Exit"/*, buttons*/))
         {
             Application.Quit();
         }
